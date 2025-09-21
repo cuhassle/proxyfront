@@ -3,200 +3,431 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>VS Browser for Webview</title>
+  <title>VS Browser Pro</title>
   <style>
-    body {
-      font-family: sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: #121212;
-      color: white;
+    * {
+      box-sizing: border-box;
       margin: 0;
+      padding: 0;
     }
-    input, button {
-      padding: 10px;
-      margin-top: 10px;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-    }
-    button {
-      background-color: #007acc;
-      color: white;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      width: 100%;
-    }
-    button:hover {
-      background-color: #005fa3;
-    }
-    .error {
-      color: #ff4b4b;
-      margin-top: 10px;
-      height: 20px;
-    }
-    #browserContainer {
-      display: block;
-      width: 100vw;
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0d1117;
+      color: #c9d1d9;
       height: 100vh;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      flex-direction: column;
       overflow: hidden;
-      background: #1e1e1e;
     }
-    .toolbar {
+
+    #browserContainer {
       display: flex;
-      align-items: center;
-      padding: 6px;
-      background: #252526;
-      border-bottom: 1px solid #333;
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+      background: #0d1117;
     }
-    .nav-buttons {
-      display: flex;
-      margin-right: 8px;
-    }
-    .nav-button {
-      margin-right: 4px;
-      padding: 6px 10px;
-      border-radius: 3px;
-      background: #3c3c3c;
-      color: white;
-      cursor: pointer;
-    }
-    .nav-button:hover {
-      background: #555;
-    }
-    .address-bar {
-      flex: 1;
-    }
-    #addressBar {
-      width: 100%;
-      padding: 6px;
-      border-radius: 3px;
-      border: none;
-      outline: none;
-      background: #1e1e1e;
-      color: white;
-      font-size: 14px;
-    }
+
+    /* Tab Bar */
     .tab-bar {
       display: flex;
       align-items: center;
-      background: #2d2d2d;
-      padding: 4px;
-      border-bottom: 1px solid #333;
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      padding: 4px 8px;
+      min-height: 44px;
+      flex-shrink: 0;
     }
+
     .tabs-container {
       display: flex;
       flex: 1;
       overflow-x: auto;
+      scroll-behavior: smooth;
+      gap: 2px;
     }
+
+    .tabs-container::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .tabs-container::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .tabs-container::-webkit-scrollbar-thumb {
+      background: #484f58;
+      border-radius: 2px;
+    }
+
     .tab {
-      padding: 6px 10px;
-      background: #3c3c3c;
-      margin-right: 4px;
-      border-radius: 3px 3px 0 0;
-      cursor: pointer;
       display: flex;
       align-items: center;
+      padding: 8px 12px;
+      background: #21262d;
+      border-radius: 6px 6px 0 0;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-width: 120px;
+      max-width: 240px;
+      border: 1px solid #30363d;
+      border-bottom: none;
+      position: relative;
     }
+
+    .tab:hover {
+      background: #30363d;
+      transform: translateY(-1px);
+    }
+
     .tab.active {
-      background: #007acc;
+      background: #0969da;
+      color: white;
+      border-color: #0969da;
     }
-    .tab span {
-      margin-right: 6px;
-      font-size: 14px;
+
+    .tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #0969da;
     }
+
+    .tab-title {
+      flex: 1;
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-right: 8px;
+    }
+
     .tab-close {
       background: transparent;
       border: none;
-      color: white;
+      color: inherit;
       cursor: pointer;
-      font-size: 14px;
-    }
-    .new-tab {
-      background: #007acc;
-      border: none;
-      padding: 6px 10px;
+      font-size: 16px;
+      padding: 2px;
       border-radius: 3px;
+      opacity: 0.7;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+    }
+
+    .tab-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+      opacity: 1;
+    }
+
+    .tab.active .tab-close:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .new-tab {
+      background: #238636;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
       color: white;
       cursor: pointer;
+      font-size: 16px;
+      transition: all 0.2s ease;
+      margin-left: 8px;
+      flex-shrink: 0;
     }
+
     .new-tab:hover {
-      background: #005fa3;
+      background: #2ea043;
+      transform: scale(1.05);
     }
-    .webview-container {
+
+    /* Toolbar */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      padding: 8px 12px;
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      gap: 8px;
+      min-height: 50px;
+      flex-shrink: 0;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 4px;
+    }
+
+    .nav-button {
+      padding: 8px 12px;
+      border-radius: 6px;
+      background: #21262d;
+      color: #c9d1d9;
+      border: 1px solid #30363d;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 14px;
+      min-width: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-button:hover:not(:disabled) {
+      background: #30363d;
+      border-color: #484f58;
+      transform: translateY(-1px);
+    }
+
+    .nav-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .address-bar {
       flex: 1;
-      height: calc(100% - 90px);
       position: relative;
     }
+
+    #addressBar {
+      width: 100%;
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: 2px solid #30363d;
+      outline: none;
+      background: #0d1117;
+      color: #c9d1d9;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+
+    #addressBar:focus {
+      border-color: #0969da;
+      box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.3);
+    }
+
+    #goBtn {
+      background: #0969da;
+      color: white;
+      border: 2px solid #0969da;
+    }
+
+    #goBtn:hover {
+      background: #0860ca;
+      border-color: #0860ca;
+    }
+
+    /* Webview Container */
+    .webview-container {
+      flex: 1;
+      position: relative;
+      background: #fff;
+      overflow: hidden;
+    }
+
     .webview {
       width: 100%;
       height: 100%;
       border: none;
       display: none;
-      background: white;
+      background: #fff;
     }
+
     .webview.active {
       display: block;
     }
+
     .loading-indicator {
       display: none;
       position: absolute;
-      top: 50%; left: 50%;
+      top: 50%;
+      left: 50%;
       transform: translate(-50%, -50%);
       z-index: 10;
+      background: rgba(13, 17, 23, 0.9);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid #30363d;
     }
+
     .spinner {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #007acc;
+      border: 3px solid #30363d;
+      border-top: 3px solid #0969da;
       border-radius: 50%;
-      width: 30px;
-      height: 30px;
+      width: 40px;
+      height: 40px;
       animation: spin 1s linear infinite;
+      margin: 0 auto 10px;
     }
+
+    .loading-text {
+      text-align: center;
+      font-size: 14px;
+      color: #c9d1d9;
+    }
+
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+
+    /* Status Bar */
     .status-bar {
-      background: #252526;
-      padding: 4px 8px;
+      background: #161b22;
+      padding: 6px 12px;
       font-size: 12px;
-      color: #ccc;
-      border-top: 1px solid #333;
+      color: #8b949e;
+      border-top: 1px solid #30363d;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      min-height: 28px;
+      flex-shrink: 0;
+    }
+
+    .status-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .status-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .security-indicator {
+      color: #238636;
+      font-weight: 500;
+    }
+
+    .security-indicator.insecure {
+      color: #f85149;
+    }
+
+    /* Error State */
+    .error-page {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      background: #0d1117;
+      color: #c9d1d9;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .error-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+
+    .error-title {
+      font-size: 24px;
+      margin-bottom: 12px;
+      color: #f85149;
+    }
+
+    .error-message {
+      font-size: 16px;
+      margin-bottom: 24px;
+      opacity: 0.8;
+      max-width: 500px;
+    }
+
+    .retry-button {
+      background: #0969da;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s ease;
+    }
+
+    .retry-button:hover {
+      background: #0860ca;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .tab {
+        min-width: 100px;
+        max-width: 150px;
+      }
+      
+      .tab-title {
+        font-size: 12px;
+      }
+      
+      .nav-button {
+        padding: 6px 10px;
+        font-size: 12px;
+      }
+      
+      #addressBar {
+        font-size: 12px;
+        padding: 8px 12px;
+      }
     }
   </style>
 </head>
 <body>
   <div id="browserContainer">
-    <div class="toolbar">
-      <div class="nav-buttons">
-        <button id="backBtn" class="nav-button" title="Back">←</button>
-        <button id="forwardBtn" class="nav-button" title="Forward">→</button>
-        <button id="refreshBtn" class="nav-button" title="Refresh">↻</button>
-      </div>
-      <div class="address-bar">
-        <input type="text" id="addressBar" placeholder="Enter URL or search term">
-      </div>
-      <button id="goBtn" class="nav-button" title="Go">Go</button>
-    </div>
-
+    <!-- Tab Bar -->
     <div class="tab-bar">
       <div class="tabs-container" id="tabsContainer"></div>
       <button id="newTabBtn" class="new-tab" title="New Tab">+</button>
     </div>
 
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="nav-buttons">
+        <button id="backBtn" class="nav-button" title="Back" disabled>‹</button>
+        <button id="forwardBtn" class="nav-button" title="Forward" disabled>›</button>
+        <button id="refreshBtn" class="nav-button" title="Refresh">↻</button>
+      </div>
+      <div class="address-bar">
+        <input type="text" id="addressBar" placeholder="Enter URL or search...">
+      </div>
+      <button id="goBtn" class="nav-button" title="Go">Go</button>
+    </div>
+
+    <!-- Webview Container -->
     <div class="webview-container" id="webviewContainer">
       <div class="loading-indicator" id="loadingIndicator">
         <div class="spinner"></div>
+        <div class="loading-text">Loading...</div>
+      </div>
+      <div class="error-page" id="errorPage">
+        <div class="error-icon">⚠️</div>
+        <div class="error-title">Page couldn't load</div>
+        <div class="error-message">Check your connection or try a different URL</div>
+        <button class="retry-button" onclick="retryCurrentPage()">Try Again</button>
       </div>
     </div>
 
-    <div class="status-bar" id="statusBar">Ready</div>
+    <!-- Status Bar -->
+    <div class="status-bar" id="statusBar">
+      <div class="status-left">
+        <span id="statusText">Ready</span>
+        <span id="tabCount">1 tab</span>
+      </div>
+      <div class="status-right">
+        <span id="securityIndicator" class="security-indicator">🔒 Secure</span>
+      </div>
+    </div>
   </div>
 
   <!-- Ultraviolet scripts -->
@@ -211,6 +442,7 @@
     let tabCounter = 0;
     const tabHistories = new Map();
 
+    // DOM elements
     const tabsContainer = document.getElementById('tabsContainer');
     const webviewContainer = document.getElementById('webviewContainer');
     const newTabBtn = document.getElementById('newTabBtn');
@@ -220,125 +452,369 @@
     const refreshBtn = document.getElementById('refreshBtn');
     const goBtn = document.getElementById('goBtn');
     const statusBar = document.getElementById('statusBar');
+    const statusText = document.getElementById('statusText');
+    const tabCount = document.getElementById('tabCount');
+    const securityIndicator = document.getElementById('securityIndicator');
     const loadingIndicator = document.getElementById('loadingIndicator');
+    const errorPage = document.getElementById('errorPage');
 
     function encodeUrl(input) {
       if (!input) return '';
-      if (!input.startsWith('http://') && !input.startsWith('https://')) {
-        if (input.includes(' ') || !input.includes('.')) {
-          input = `https://duckduckgo.com/?q=${encodeURIComponent(input)}`;
-        } else {
-          input = 'https://' + input;
-        }
+      
+      // Check if it's already a valid URL
+      if (input.startsWith('http://') || input.startsWith('https://')) {
+        return window.__uv$config ? window.__uv$config.prefix + window.__uv$config.encodeUrl(input) : input;
       }
-      return __uv$config.prefix + __uv$config.encodeUrl(input);
+      
+      // If it contains spaces or no dots, treat as search
+      if (input.includes(' ') || !input.includes('.')) {
+        const searchUrl = `https://duckduckgo.com/?q=${encodeURIComponent(input)}`;
+        return window.__uv$config ? window.__uv$config.prefix + window.__uv$config.encodeUrl(searchUrl) : searchUrl;
+      }
+      
+      // Otherwise, add https and encode
+      const fullUrl = 'https://' + input;
+      return window.__uv$config ? window.__uv$config.prefix + window.__uv$config.encodeUrl(fullUrl) : fullUrl;
     }
 
     function init() {
       setupEventListeners();
       createNewTab(HOMEPAGE);
+      updateUI();
     }
 
     function setupEventListeners() {
       newTabBtn.addEventListener('click', () => createNewTab());
       backBtn.addEventListener('click', () => navigateHistory(-1));
       forwardBtn.addEventListener('click', () => navigateHistory(1));
-      refreshBtn.addEventListener('click', () => {
-        const tab = getActiveTab();
-        if (tab) navigateToUrl(tab.url, tab);
-      });
+      refreshBtn.addEventListener('click', refreshCurrentTab);
+      
       addressBar.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           const tab = getActiveTab();
           if (tab) navigateToUrl(addressBar.value, tab);
         }
       });
+      
       goBtn.addEventListener('click', () => {
         const tab = getActiveTab();
         if (tab) navigateToUrl(addressBar.value, tab);
+      });
+
+      // Keyboard shortcuts
+      document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey || e.metaKey) {
+          switch(e.key) {
+            case 't':
+              e.preventDefault();
+              createNewTab();
+              break;
+            case 'w':
+              e.preventDefault();
+              const tab = getActiveTab();
+              if (tab && tabs.length > 1) closeTab(tab.id);
+              break;
+            case 'r':
+              e.preventDefault();
+              refreshCurrentTab();
+              break;
+          }
+        }
       });
     }
 
     function createNewTab(url = '') {
       const tabId = `tab-${++tabCounter}`;
-      const tab = { id: tabId, url: '', title: 'New Tab', iframe: null };
+      const tab = { 
+        id: tabId, 
+        url: '', 
+        title: 'New Tab', 
+        iframe: null,
+        loading: false,
+        error: false
+      };
+      
       tabs.push(tab);
       tabHistories.set(tabId, { history: [], index: -1 });
 
-      const tabEl = document.createElement('div');
-      tabEl.className = 'tab';
-      tabEl.dataset.tabId = tabId;
-      tabEl.innerHTML = `<span>${tab.title}</span><button class="tab-close">&times;</button>`;
-      tabEl.addEventListener('click', (e) => {
-        if (!e.target.classList.contains('tab-close')) setActiveTab(tabId);
-      });
-      tabEl.querySelector('.tab-close').addEventListener('click', (e) => {
-        e.stopPropagation();
-        closeTab(tabId);
-      });
+      const tabEl = createTabElement(tab);
       tabsContainer.appendChild(tabEl);
 
       setActiveTab(tabId);
-      if (url) navigateToUrl(url, tab);
+      updateUI();
+      
+      if (url) {
+        navigateToUrl(url, tab);
+      } else {
+        addressBar.focus();
+      }
+    }
+
+    function createTabElement(tab) {
+      const tabEl = document.createElement('div');
+      tabEl.className = 'tab';
+      tabEl.dataset.tabId = tab.id;
+      tabEl.innerHTML = `
+        <span class="tab-title">${tab.title}</span>
+        <button class="tab-close" title="Close tab">&times;</button>
+      `;
+      
+      tabEl.addEventListener('click', (e) => {
+        if (!e.target.classList.contains('tab-close')) {
+          setActiveTab(tab.id);
+        }
+      });
+      
+      tabEl.querySelector('.tab-close').addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeTab(tab.id);
+      });
+      
+      return tabEl;
     }
 
     function setActiveTab(tabId) {
       const tab = tabs.find(t => t.id === tabId);
       if (!tab) return;
-      document.querySelectorAll('.tab').forEach(el => el.classList.toggle('active', el.dataset.tabId === tabId));
-      tabs.forEach(t => { if (t.iframe) t.iframe.style.display = t.id === tabId ? 'block' : 'none'; });
-      addressBar.value = tab.url || '';
+
+      // Update tab UI
+      document.querySelectorAll('.tab').forEach(el => {
+        el.classList.toggle('active', el.dataset.tabId === tabId);
+      });
+
+      // Show/hide iframes
+      tabs.forEach(t => {
+        if (t.iframe) {
+          t.iframe.classList.toggle('active', t.id === tabId);
+        }
+      });
+
       activeTabId = tabId;
+      addressBar.value = tab.url || '';
+      updateUI();
+      updateSecurityIndicator(tab.url);
     }
 
     function closeTab(tabId) {
       if (tabs.length <= 1) return;
-      const i = tabs.findIndex(t => t.id === tabId);
-      if (i === -1) return;
-      const tab = tabs[i];
-      if (tab.iframe) tab.iframe.remove();
-      document.querySelector(`.tab[data-tab-id="${tabId}"]`)?.remove();
-      tabs.splice(i, 1);
-      if (activeTabId === tabId) setActiveTab(tabs[Math.max(0, i - 1)].id);
+      
+      const tabIndex = tabs.findIndex(t => t.id === tabId);
+      if (tabIndex === -1) return;
+      
+      const tab = tabs[tabIndex];
+      
+      // Remove iframe
+      if (tab.iframe) {
+        tab.iframe.remove();
+      }
+      
+      // Remove tab element
+      const tabEl = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
+      if (tabEl) tabEl.remove();
+      
+      // Remove from arrays
+      tabs.splice(tabIndex, 1);
+      tabHistories.delete(tabId);
+      
+      // Switch to another tab if this was active
+      if (activeTabId === tabId) {
+        const newActiveIndex = Math.min(tabIndex, tabs.length - 1);
+        setActiveTab(tabs[newActiveIndex].id);
+      }
+      
+      updateUI();
     }
 
-    function getActiveTab() { return tabs.find(t => t.id === activeTabId); }
+    function getActiveTab() {
+      return tabs.find(t => t.id === activeTabId);
+    }
 
-    function navigateHistory(dir) {
+    function navigateHistory(direction) {
       const tab = getActiveTab();
       if (!tab) return;
+      
       const history = tabHistories.get(tab.id);
-      if (!history) return;
-      history.index += dir;
-      if (history.index >= 0 && history.index < history.history.length) {
-        navigateToUrl(history.history[history.index], tab, true);
+      if (!history || history.history.length === 0) return;
+      
+      const newIndex = history.index + direction;
+      if (newIndex >= 0 && newIndex < history.history.length) {
+        history.index = newIndex;
+        const url = history.history[newIndex];
+        navigateToUrl(url, tab, true);
       }
+      
+      updateNavigationButtons();
     }
 
     function navigateToUrl(input, tab, fromHistory = false) {
-      if (!tab) return;
-      const proxiedUrl = encodeUrl(input);
+      if (!tab || !input.trim()) return;
+
+      const cleanInput = input.trim();
+      tab.loading = true;
+      tab.error = false;
+      
+      showLoading();
+      hideError();
+      
+      // Update history if not from history navigation
       if (!fromHistory) {
         const history = tabHistories.get(tab.id);
-        history.history.push(input);
+        // Remove any forward history when navigating to new page
+        if (history.index < history.history.length - 1) {
+          history.history = history.history.slice(0, history.index + 1);
+        }
+        history.history.push(cleanInput);
         history.index = history.history.length - 1;
       }
-      tab.url = input;
-      addressBar.value = input;
+
+      tab.url = cleanInput;
+      addressBar.value = cleanInput;
+      
+      // Update tab title temporarily
+      updateTabTitle(tab, 'Loading...');
+      
+      // Create iframe if doesn't exist
       if (!tab.iframe) {
         tab.iframe = document.createElement('iframe');
-        tab.iframe.className = 'webview active';
+        tab.iframe.className = 'webview';
+        if (tab.id === activeTabId) {
+          tab.iframe.classList.add('active');
+        }
         webviewContainer.appendChild(tab.iframe);
       }
-      showLoading();
-      tab.iframe.src = proxiedUrl;
-      tab.iframe.onload = () => hideLoading();
+
+      const proxiedUrl = encodeUrl(cleanInput);
+      statusText.textContent = `Loading ${cleanInput}...`;
+      
+      // Set up load handlers
+      tab.iframe.onload = () => handleLoadSuccess(tab);
+      tab.iframe.onerror = () => handleLoadError(tab);
+      
+      // Load the URL
+      try {
+        tab.iframe.src = proxiedUrl;
+      } catch (error) {
+        handleLoadError(tab);
+      }
+      
+      updateNavigationButtons();
+      updateSecurityIndicator(cleanInput);
     }
 
-    function showLoading() { loadingIndicator.style.display = 'flex'; }
-    function hideLoading() { loadingIndicator.style.display = 'none'; }
+    function handleLoadSuccess(tab) {
+      tab.loading = false;
+      tab.error = false;
+      hideLoading();
+      hideError();
+      
+      // Try to get page title (might not work due to CORS)
+      try {
+        const title = tab.iframe.contentDocument?.title || getDisplayTitle(tab.url);
+        updateTabTitle(tab, title);
+      } catch (e) {
+        updateTabTitle(tab, getDisplayTitle(tab.url));
+      }
+      
+      statusText.textContent = 'Done';
+    }
 
-    init();
+    function handleLoadError(tab) {
+      tab.loading = false;
+      tab.error = true;
+      hideLoading();
+      showError();
+      updateTabTitle(tab, 'Error');
+      statusText.textContent = 'Failed to load page';
+    }
+
+    function getDisplayTitle(url) {
+      if (!url) return 'New Tab';
+      try {
+        const urlObj = new URL(url.startsWith('http') ? url : 'https://' + url);
+        return urlObj.hostname.replace('www.', '') || 'New Tab';
+      } catch {
+        return url.substring(0, 30) + (url.length > 30 ? '...' : '') || 'New Tab';
+      }
+    }
+
+    function updateTabTitle(tab, title) {
+      tab.title = title;
+      const tabEl = document.querySelector(`.tab[data-tab-id="${tab.id}"] .tab-title`);
+      if (tabEl) {
+        tabEl.textContent = title;
+        tabEl.title = title; // Full title on hover
+      }
+    }
+
+    function refreshCurrentTab() {
+      const tab = getActiveTab();
+      if (tab && tab.url) {
+        navigateToUrl(tab.url, tab);
+      }
+    }
+
+    function updateNavigationButtons() {
+      const tab = getActiveTab();
+      if (!tab) {
+        backBtn.disabled = true;
+        forwardBtn.disabled = true;
+        return;
+      }
+      
+      const history = tabHistories.get(tab.id);
+      backBtn.disabled = !history || history.index <= 0;
+      forwardBtn.disabled = !history || history.index >= history.history.length - 1;
+    }
+
+    function updateSecurityIndicator(url) {
+      if (!url) {
+        securityIndicator.textContent = '';
+        return;
+      }
+      
+      if (url.startsWith('https://')) {
+        securityIndicator.textContent = '🔒 Secure';
+        securityIndicator.className = 'security-indicator';
+      } else {
+        securityIndicator.textContent = '⚠️ Not Secure';
+        securityIndicator.className = 'security-indicator insecure';
+      }
+    }
+
+    function updateUI() {
+      tabCount.textContent = `${tabs.length} tab${tabs.length !== 1 ? 's' : ''}`;
+      updateNavigationButtons();
+    }
+
+    function showLoading() {
+      loadingIndicator.style.display = 'flex';
+    }
+
+    function hideLoading() {
+      loadingIndicator.style.display = 'none';
+    }
+
+    function showError() {
+      errorPage.style.display = 'flex';
+    }
+
+    function hideError() {
+      errorPage.style.display = 'none';
+    }
+
+    function retryCurrentPage() {
+      const tab = getActiveTab();
+      if (tab && tab.url) {
+        navigateToUrl(tab.url, tab);
+      }
+    }
+
+    // Initialize when DOM is loaded
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
   </script>
 </body>
 </html>
