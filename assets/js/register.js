@@ -21,7 +21,7 @@ async function registerSW() {
       return;
     }
 
-    const registration = await navigator.serviceWorker.register("sw.js", {
+    const registration = await navigator.serviceWorker.register("/active/uv/uv.sw.js", {
       scope: __uv$config.prefix,
     });
 
