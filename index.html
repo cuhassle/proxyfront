@@ -5,82 +5,159 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>VS Browser Pro</title>
   <style>
-    body, html {
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: Arial, sans-serif;
-      background: #1e1e1e;
-      color: #fff;
-      height: 100%;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0d1117;
+      color: #c9d1d9;
+      height: 100vh;
       overflow: hidden;
     }
 
     #browserContainer {
       display: flex;
       flex-direction: column;
-      height: 100%;
-      width: 100%;
+      height: 100vh;
+      width: 100vw;
+      background: #0d1117;
     }
 
     /* Tab Bar */
     .tab-bar {
       display: flex;
       align-items: center;
-      background: #2d2d2d;
-      padding: 4px;
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      padding: 4px 8px;
+      min-height: 44px;
+      flex-shrink: 0;
     }
 
     .tabs-container {
       display: flex;
       flex: 1;
       overflow-x: auto;
-      scrollbar-width: thin;
+      scroll-behavior: smooth;
+      gap: 2px;
+    }
+
+    .tabs-container::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .tabs-container::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .tabs-container::-webkit-scrollbar-thumb {
+      background: #484f58;
+      border-radius: 2px;
     }
 
     .tab {
-      background: #3c3c3c;
-      padding: 6px 12px;
-      margin-right: 4px;
-      border-radius: 4px 4px 0 0;
-      cursor: pointer;
-      white-space: nowrap;
       display: flex;
       align-items: center;
-      max-width: 200px;
+      padding: 8px 12px;
+      background: #21262d;
+      border-radius: 6px 6px 0 0;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-width: 120px;
+      max-width: 240px;
+      border: 1px solid #30363d;
+      border-bottom: none;
+      position: relative;
+    }
+
+    .tab:hover {
+      background: #30363d;
+      transform: translateY(-1px);
     }
 
     .tab.active {
-      background: #1e90ff;
-      color: #fff;
+      background: #0969da;
+      color: white;
+      border-color: #0969da;
     }
 
-    .tab span {
+    .tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #0969da;
+    }
+
+    .tab-title {
+      flex: 1;
+      font-size: 13px;
+      white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      margin-right: 8px;
     }
 
-    .tab .close-btn {
-      margin-left: 8px;
+    .tab-close {
+      background: transparent;
+      border: none;
+      color: inherit;
       cursor: pointer;
-      color: #ccc;
+      font-size: 16px;
+      padding: 2px;
+      border-radius: 3px;
+      opacity: 0.7;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+    }
+
+    .tab-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+      opacity: 1;
+    }
+
+    .tab.active .tab-close:hover {
+      background: rgba(255, 255, 255, 0.2);
     }
 
     .new-tab {
-      background: #3c3c3c;
+      background: #238636;
       border: none;
-      border-radius: 4px;
-      padding: 6px 10px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      color: white;
       cursor: pointer;
-      color: #fff;
-      font-size: 18px;
+      font-size: 16px;
+      transition: all 0.2s ease;
+      margin-left: 8px;
+      flex-shrink: 0;
+    }
+
+    .new-tab:hover {
+      background: #2ea043;
+      transform: scale(1.05);
     }
 
     /* Toolbar */
     .toolbar {
       display: flex;
       align-items: center;
-      padding: 4px;
-      background: #252526;
+      padding: 8px 12px;
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      gap: 8px;
+      min-height: 50px;
+      flex-shrink: 0;
     }
 
     .nav-buttons {
@@ -89,30 +166,62 @@
     }
 
     .nav-button {
-      background: #3c3c3c;
-      border: none;
-      border-radius: 4px;
-      padding: 6px 10px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      background: #21262d;
+      color: #c9d1d9;
+      border: 1px solid #30363d;
       cursor: pointer;
-      color: #fff;
+      transition: all 0.2s ease;
+      font-size: 14px;
+      min-width: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-button:hover:not(:disabled) {
+      background: #30363d;
+      border-color: #484f58;
+      transform: translateY(-1px);
     }
 
     .nav-button:disabled {
       opacity: 0.5;
-      cursor: default;
+      cursor: not-allowed;
     }
 
     .address-bar {
       flex: 1;
-      margin: 0 8px;
+      position: relative;
     }
 
-    .address-bar input {
+    #addressBar {
       width: 100%;
-      padding: 6px;
-      border: none;
-      border-radius: 4px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: 2px solid #30363d;
       outline: none;
+      background: #0d1117;
+      color: #c9d1d9;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+
+    #addressBar:focus {
+      border-color: #0969da;
+      box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.3);
+    }
+
+    #goBtn {
+      background: #0969da;
+      color: white;
+      border: 2px solid #0969da;
+    }
+
+    #goBtn:hover {
+      background: #0860ca;
+      border-color: #0860ca;
     }
 
     /* Webview Container */
@@ -120,53 +229,48 @@
       flex: 1;
       position: relative;
       background: #fff;
+      overflow: hidden;
     }
 
-    .webview-container iframe {
+    .webview {
       width: 100%;
       height: 100%;
       border: none;
       display: none;
+      background: #fff;
     }
 
-    .webview-container iframe.active {
+    .webview.active {
       display: block;
     }
 
-    /* Status Bar */
-    .status-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #2d2d2d;
-      padding: 4px 8px;
-      font-size: 12px;
-    }
-
-    /* Loading Indicator */
     .loading-indicator {
+      display: none;
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      color: #000;
-    }
-
-    .loading-indicator.active {
-      display: flex;
+      z-index: 10;
+      background: rgba(13, 17, 23, 0.9);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid #30363d;
     }
 
     .spinner {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #1e90ff;
+      border: 3px solid #30363d;
+      border-top: 3px solid #0969da;
       border-radius: 50%;
-      width: 36px;
-      height: 36px;
+      width: 40px;
+      height: 40px;
       animation: spin 1s linear infinite;
-      margin-bottom: 10px;
+      margin: 0 auto 10px;
+    }
+
+    .loading-text {
+      text-align: center;
+      font-size: 14px;
+      color: #c9d1d9;
     }
 
     @keyframes spin {
@@ -174,18 +278,55 @@
       100% { transform: rotate(360deg); }
     }
 
-    /* Error Page */
+    /* Status Bar */
+    .status-bar {
+      background: #161b22;
+      padding: 6px 12px;
+      font-size: 12px;
+      color: #8b949e;
+      border-top: 1px solid #30363d;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      min-height: 28px;
+      flex-shrink: 0;
+    }
+
+    .status-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .status-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .security-indicator {
+      color: #238636;
+      font-weight: 500;
+    }
+
+    .security-indicator.insecure {
+      color: #f85149;
+    }
+
+    /* Error State */
     .error-page {
       display: none;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      height: 100%;
+      background: #0d1117;
+      color: #c9d1d9;
+      text-align: center;
+      padding: 40px;
       position: absolute;
       inset: 0;
-      background: #fff;
-      color: #000;
-      text-align: center;
-      padding: 20px;
+      z-index: 20;
     }
 
     .error-page.active {
@@ -193,28 +334,59 @@
     }
 
     .error-icon {
-      font-size: 40px;
-      margin-bottom: 10px;
+      font-size: 64px;
+      margin-bottom: 20px;
+      opacity: 0.5;
     }
 
     .error-title {
-      font-size: 20px;
-      font-weight: bold;
-      margin-bottom: 5px;
+      font-size: 24px;
+      margin-bottom: 12px;
+      color: #f85149;
+    }
+
+    .error-message {
+      font-size: 16px;
+      margin-bottom: 24px;
+      opacity: 0.8;
+      max-width: 500px;
     }
 
     .retry-button {
-      background: #1e90ff;
-      color: #fff;
+      background: #0969da;
+      color: white;
       border: none;
-      border-radius: 4px;
-      padding: 8px 16px;
+      padding: 12px 24px;
+      border-radius: 8px;
       cursor: pointer;
-      margin-top: 10px;
+      font-size: 14px;
+      transition: background 0.2s ease;
     }
 
     .retry-button:hover {
-      background: #0066cc;
+      background: #0860ca;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .tab {
+        min-width: 100px;
+        max-width: 150px;
+      }
+      
+      .tab-title {
+        font-size: 12px;
+      }
+      
+      .nav-button {
+        padding: 6px 10px;
+        font-size: 12px;
+      }
+      
+      #addressBar {
+        font-size: 12px;
+        padding: 8px 12px;
+      }
     }
   </style>
 </head>
@@ -257,29 +429,39 @@
     <div class="status-bar" id="statusBar">
       <div class="status-left">
         <span id="statusText">Ready</span>
-        <span id="tabCount">1 tab</span>
+        <span id="tabCount">0 tabs</span>
       </div>
       <div class="status-right">
-        <span id="securityIndicator" class="security-indicator">🔒 Secure</span>
+        <span id="securityIndicator" class="security-indicator">🔒</span>
       </div>
     </div>
   </div>
 
-  <!-- ✅ Load all required Ultraviolet scripts -->
-  <script src="/active/uv/uv.bundle.js" defer></script>
-  <script src="/active/uv/uv.handler.js" defer></script>
-  <script src="/active/uv/uv.client.js" defer></script>
-  <script src="/active/uv/uv.config.js" defer></script>
-  <script src="/assets/js/register.js" defer></script>
+  <!-- NOTE: we load UV scripts dynamically from JS below so we can wait for them to be ready. -->
 
   <script>
+    /****************************************************************
+     * Configurable script paths — adjust if your paths differ
+     ****************************************************************/
+    const UV_SCRIPT_PATHS = [
+      '/active/uv/uv.config.js',   // config first (defines __uv$config)
+      '/active/uv/uv.bundle.js',   // bundle provides codecs
+      '/active/uv/uv.handler.js',
+      '/active/uv/uv.client.js',
+      '/assets/js/register.js'     // register service worker (if present)
+    ];
+
+    /****************************************************************
+     * App state
+     ****************************************************************/
     const HOMEPAGE = 'https://duckduckgo.com';
     let tabs = [];
     let activeTabId = null;
     let tabCounter = 0;
     const tabHistories = new Map();
+    let uvReady = false;
 
-    // DOM elements
+    // DOM nodes (present because script placed at end of body)
     const tabsContainer = document.getElementById('tabsContainer');
     const webviewContainer = document.getElementById('webviewContainer');
     const newTabBtn = document.getElementById('newTabBtn');
@@ -294,182 +476,459 @@
     const loadingIndicator = document.getElementById('loadingIndicator');
     const errorPage = document.getElementById('errorPage');
 
-    function encodeUrl(input) {
-      if (!input) return '';
-      if (input.startsWith('http://') || input.startsWith('https://')) {
-        return __uv$config.prefix + __uv$config.encodeUrl(input);
-      }
-      if (input.includes(' ') || !input.includes('.')) {
-        const searchUrl = `https://duckduckgo.com/?q=${encodeURIComponent(input)}`;
-        return __uv$config.prefix + __uv$config.encodeUrl(searchUrl);
-      }
-      return __uv$config.prefix + __uv$config.encodeUrl('https://' + input);
+    /****************************************************************
+     * Helpers for dynamic script loading + UV detection
+     ****************************************************************/
+    function loadScript(src) {
+      return new Promise((resolve) => {
+        // If script already present, resolve immediately
+        if (document.querySelector(`script[src="${src}"]`)) {
+          console.debug('[UV] script already present:', src);
+          return resolve(true);
+        }
+        const s = document.createElement('script');
+        s.src = src;
+        s.async = false;
+        s.onload = () => { console.debug('[UV] loaded', src); resolve(true); };
+        s.onerror = () => { console.warn('[UV] failed to load', src); resolve(false); };
+        document.head.appendChild(s);
+      });
     }
 
-    function init() {
+    async function loadScriptsInOrder(list) {
+      for (const src of list) {
+        await loadScript(src);
+      }
+    }
+
+    function isUVAvailable() {
+      try {
+        if (window.__uv$config && typeof window.__uv$config.encodeUrl === 'function') return true;
+        if (window.Ultraviolet && Ultraviolet.codec && Ultraviolet.codec.xor && typeof Ultraviolet.codec.xor.encode === 'function') return true;
+        // some builds export encode via Ultraviolet or __uv
+        if (window.__uv && typeof window.__uv.encodeUrl === 'function') return true;
+      } catch (e) {}
+      return false;
+    }
+
+    function encodeWithUV(fullUrl) {
+      // attempt several common possibilities
+      const prefix = (window.__uv$config && window.__uv$config.prefix) || (window.__uv && window.__uv.prefix) || '/service/';
+      if (window.__uv$config && typeof window.__uv$config.encodeUrl === 'function') {
+        return prefix + window.__uv$config.encodeUrl(fullUrl);
+      }
+      if (window.Ultraviolet && Ultraviolet.codec && Ultraviolet.codec.xor && typeof Ultraviolet.codec.xor.encode === 'function') {
+        return prefix + Ultraviolet.codec.xor.encode(fullUrl);
+      }
+      if (window.__uv && typeof window.__uv.encodeUrl === 'function') {
+        return (window.__uv.prefix || prefix) + window.__uv.encodeUrl(fullUrl);
+      }
+      // fallback: return original (no encoding)
+      return fullUrl;
+    }
+
+    async function waitForUV(timeout = 5000) {
+      const start = Date.now();
+      while ((Date.now() - start) < timeout) {
+        if (isUVAvailable()) {
+          uvReady = true;
+          console.info('[UV] encode function available');
+          return true;
+        }
+        await new Promise(r => setTimeout(r, 50));
+      }
+      uvReady = false;
+      console.warn('[UV] not available after timeout');
+      return false;
+    }
+
+    /****************************************************************
+     * URL encoding + proxy (uses UV if available, else fallback)
+     ****************************************************************/
+    function prepareProxiedUrl(userInput) {
+      if (!userInput) return '';
+      let input = userInput.trim();
+
+      // If search or plain text
+      if (input.includes(' ') || !input.includes('.')) {
+        input = `https://duckduckgo.com/?q=${encodeURIComponent(input)}`;
+      } else if (!input.startsWith('http://') && !input.startsWith('https://')) {
+        input = 'https://' + input;
+      }
+
+      if (uvReady) {
+        try {
+          return encodeWithUV(input);
+        } catch (e) {
+          console.warn('[UV] encode error, falling back to direct url', e);
+          return input;
+        }
+      } else {
+        // fallback to direct url (this may fail due to CORS)
+        return input;
+      }
+    }
+
+    /****************************************************************
+     * UI & navigation logic (based on your original)
+     ****************************************************************/
+    function setupEventListeners() {
+      newTabBtn.addEventListener('click', () => createNewTab(HOMEPAGE));
+      backBtn.addEventListener('click', () => navigateHistory(-1));
+      forwardBtn.addEventListener('click', () => navigateHistory(1));
+      refreshBtn.addEventListener('click', refreshCurrentTab);
+
+      addressBar.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const tab = getActiveTab();
+          if (tab) navigateToUrl(addressBar.value, tab);
+        }
+      });
+
+      goBtn.addEventListener('click', () => {
+        const tab = getActiveTab();
+        if (tab) navigateToUrl(addressBar.value, tab);
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey || e.metaKey) {
+          switch(e.key) {
+            case 't':
+              e.preventDefault();
+              createNewTab(HOMEPAGE);
+              break;
+            case 'w':
+              e.preventDefault();
+              {
+                const tab = getActiveTab();
+                if (tab && tabs.length > 1) closeTab(tab.id);
+              }
+              break;
+            case 'r':
+              e.preventDefault();
+              refreshCurrentTab();
+              break;
+          }
+        }
+      });
+    }
+
+    function createNewTab(url = '') {
+      const tabId = `tab-${++tabCounter}`;
+      const tabObj = {
+        id: tabId,
+        url: '',
+        title: 'New Tab',
+        iframe: null,
+        loading: false,
+        error: false
+      };
+
+      tabs.push(tabObj);
+      tabHistories.set(tabId, { history: [], index: -1 });
+
+      const tabEl = createTabElement(tabObj);
+      tabsContainer.appendChild(tabEl);
+
+      // set active then possibly navigate
+      setActiveTab(tabId);
+      updateUI();
+
+      if (url) {
+        navigateToUrl(url, tabObj);
+      } else {
+        addressBar.focus();
+      }
+    }
+
+    function createTabElement(tab) {
+      const tabEl = document.createElement('div');
+      tabEl.className = 'tab';
+      tabEl.dataset.tabId = tab.id;
+      tabEl.innerHTML = `
+        <span class="tab-title">${tab.title}</span>
+        <button class="tab-close" title="Close tab">&times;</button>
+      `;
+
+      tabEl.addEventListener('click', (e) => {
+        if (!e.target.classList.contains('tab-close')) {
+          setActiveTab(tab.id);
+        }
+      });
+
+      tabEl.querySelector('.tab-close').addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeTab(tab.id);
+      });
+
+      return tabEl;
+    }
+
+    function setActiveTab(tabId) {
+      const tab = tabs.find(t => t.id === tabId);
+      if (!tab) return;
+
+      document.querySelectorAll('.tab').forEach(el => {
+        el.classList.toggle('active', el.dataset.tabId === tabId);
+      });
+
+      tabs.forEach(t => {
+        if (t.iframe) {
+          t.iframe.classList.toggle('active', t.id === tabId);
+        }
+      });
+
+      activeTabId = tabId;
+      addressBar.value = tab.url || '';
+      updateUI();
+      updateSecurityIndicator(tab.url);
+    }
+
+    function closeTab(tabId) {
+      if (tabs.length <= 1) return;
+
+      const tabIndex = tabs.findIndex(t => t.id === tabId);
+      if (tabIndex === -1) return;
+
+      const tab = tabs[tabIndex];
+
+      if (tab.iframe) {
+        tab.iframe.remove();
+      }
+
+      const tabEl = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
+      if (tabEl) tabEl.remove();
+
+      tabs.splice(tabIndex, 1);
+      tabHistories.delete(tabId);
+
+      if (activeTabId === tabId) {
+        const newActiveIndex = Math.min(tabIndex, tabs.length - 1);
+        setActiveTab(tabs[newActiveIndex].id);
+      }
+
+      updateUI();
+    }
+
+    function getActiveTab() {
+      return tabs.find(t => t.id === activeTabId);
+    }
+
+    function navigateHistory(direction) {
+      const tab = getActiveTab();
+      if (!tab) return;
+
+      const history = tabHistories.get(tab.id);
+      if (!history || history.history.length === 0) return;
+
+      const newIndex = history.index + direction;
+      if (newIndex >= 0 && newIndex < history.history.length) {
+        history.index = newIndex;
+        const url = history.history[newIndex];
+        navigateToUrl(url, tab, true);
+      }
+
+      updateNavigationButtons();
+    }
+
+    function navigateToUrl(input, tab, fromHistory = false) {
+      if (!tab || !input || !input.trim()) return;
+
+      const cleanInput = input.trim();
+      tab.loading = true;
+      tab.error = false;
+
+      showLoading();
+      hideError();
+
+      // Update history if not from history navigation
+      if (!fromHistory) {
+        const history = tabHistories.get(tab.id);
+        if (history.index < history.history.length - 1) {
+          history.history = history.history.slice(0, history.index + 1);
+        }
+        history.history.push(cleanInput);
+        history.index = history.history.length - 1;
+      }
+
+      tab.url = cleanInput;
+      addressBar.value = cleanInput;
+
+      // Update tab title temporarily
+      updateTabTitle(tab, 'Loading...');
+
+      // Create iframe if doesn't exist
+      if (!tab.iframe) {
+        tab.iframe = document.createElement('iframe');
+        tab.iframe.className = 'webview';
+        tab.iframe.dataset.tabId = tab.id;
+        if (tab.id === activeTabId) {
+          tab.iframe.classList.add('active');
+        }
+        webviewContainer.appendChild(tab.iframe);
+      }
+
+      // Build proxied URL (may be direct if UV not ready)
+      const proxiedUrl = prepareProxiedUrl(cleanInput);
+
+      statusText.textContent = `Loading ${cleanInput}...`;
+
+      // Remove previous handlers to avoid duplicates
+      tab.iframe.onload = null;
+      tab.iframe.onerror = null;
+
+      // Set up load handlers
+      tab.iframe.onload = () => handleLoadSuccess(tab);
+      tab.iframe.onerror = () => handleLoadError(tab);
+
+      // Load the URL
+      try {
+        tab.iframe.src = proxiedUrl;
+      } catch (error) {
+        console.error('[navigateToUrl] set src failed', error);
+        handleLoadError(tab);
+      }
+
+      updateNavigationButtons();
+      updateSecurityIndicator(cleanInput);
+    }
+
+    function handleLoadSuccess(tab) {
+      tab.loading = false;
+      tab.error = false;
+      hideLoading();
+      hideError();
+
+      // Try to get page title (may be blocked by CORS) — fallback to host
+      try {
+        const title = tab.iframe.contentDocument?.title || getDisplayTitle(tab.url);
+        updateTabTitle(tab, title);
+      } catch (e) {
+        updateTabTitle(tab, getDisplayTitle(tab.url));
+      }
+
+      statusText.textContent = 'Done';
+    }
+
+    function handleLoadError(tab) {
+      tab.loading = false;
+      tab.error = true;
+      hideLoading();
+      showError();
+      updateTabTitle(tab, 'Error');
+      statusText.textContent = 'Failed to load page';
+    }
+
+    function getDisplayTitle(url) {
+      if (!url) return 'New Tab';
+      try {
+        const urlObj = new URL(url.startsWith('http') ? url : 'https://' + url);
+        return urlObj.hostname.replace('www.', '') || 'New Tab';
+      } catch {
+        return url.substring(0, 30) + (url.length > 30 ? '...' : '') || 'New Tab';
+      }
+    }
+
+    function updateTabTitle(tab, title) {
+      tab.title = title;
+      const tabEl = document.querySelector(`.tab[data-tab-id="${tab.id}"] .tab-title`);
+      if (tabEl) {
+        tabEl.textContent = title;
+        tabEl.title = title;
+      }
+    }
+
+    function refreshCurrentTab() {
+      const tab = getActiveTab();
+      if (tab && tab.url) {
+        navigateToUrl(tab.url, tab);
+      }
+    }
+
+    function updateNavigationButtons() {
+      const tab = getActiveTab();
+      if (!tab) {
+        backBtn.disabled = true;
+        forwardBtn.disabled = true;
+        return;
+      }
+
+      const history = tabHistories.get(tab.id);
+      backBtn.disabled = !history || history.index <= 0;
+      forwardBtn.disabled = !history || history.index >= history.history.length - 1;
+    }
+
+    function updateSecurityIndicator(url) {
+      if (!url) {
+        securityIndicator.textContent = '🔒';
+        return;
+      }
+
+      if (url.startsWith('https://')) {
+        securityIndicator.textContent = '🔒 Secure';
+        securityIndicator.className = 'security-indicator';
+      } else {
+        securityIndicator.textContent = '⚠️ Not Secure';
+        securityIndicator.className = 'security-indicator insecure';
+      }
+    }
+
+    function updateUI() {
+      tabCount.textContent = `${tabs.length} tab${tabs.length !== 1 ? 's' : ''}`;
+      updateNavigationButtons();
+    }
+
+    function showLoading() {
+      loadingIndicator.style.display = 'flex';
+    }
+
+    function hideLoading() {
+      loadingIndicator.style.display = 'none';
+    }
+
+    function showError() {
+      errorPage.classList.add('active');
+    }
+
+    function hideError() {
+      errorPage.classList.remove('active');
+    }
+
+    function retryCurrentPage() {
+      const tab = getActiveTab();
+      if (tab && tab.url) {
+        navigateToUrl(tab.url, tab);
+      }
+    }
+
+    /****************************************************************
+     * Initialization: dynamic UV load → wait → init UI
+     ****************************************************************/
+    async function initializeApp() {
+      // Load UV scripts in order (non-blocking failures are allowed)
+      await loadScriptsInOrder(UV_SCRIPT_PATHS);
+
+      // Wait briefly for encode function to appear
+      const ok = await waitForUV(4000); // 4s timeout
+      if (!ok) {
+        statusText.textContent = 'Warning: UV not available — pages may not proxy correctly.';
+        console.warn('UV not ready; continuing with fallback (direct URLs). Check console/network for missing files.');
+        securityIndicator.textContent = '⚠️ Proxy unavailable';
+      } else {
+        statusText.textContent = 'Proxy ready';
+        securityIndicator.textContent = '🔒 Proxy';
+      }
+
       setupEventListeners();
       createNewTab(HOMEPAGE);
       updateUI();
     }
 
-    function setupEventListeners() {
-      newTabBtn.addEventListener('click', () => createNewTab(HOMEPAGE));
-      goBtn.addEventListener('click', () => navigateToUrl(addressBar.value));
-      addressBar.addEventListener('keydown', e => {
-        if (e.key === 'Enter') navigateToUrl(addressBar.value);
-      });
-      backBtn.addEventListener('click', () => goBack());
-      forwardBtn.addEventListener('click', () => goForward());
-      refreshBtn.addEventListener('click', () => refreshPage());
-    }
-
-    function createNewTab(url) {
-      const tabId = `tab-${tabCounter++}`;
-      const iframe = document.createElement('iframe');
-      iframe.className = 'webview';
-      iframe.dataset.tabId = tabId;
-      webviewContainer.appendChild(iframe);
-
-      const tab = document.createElement('div');
-      tab.className = 'tab';
-      tab.dataset.tabId = tabId;
-      tab.innerHTML = `<span>New Tab</span><span class="close-btn">✕</span>`;
-      tabsContainer.appendChild(tab);
-
-      tabs.push(tabId);
-      tabHistories.set(tabId, { history: [], index: -1 });
-
-      tab.addEventListener('click', e => {
-        if (e.target.classList.contains('close-btn')) {
-          closeTab(tabId);
-        } else {
-          switchTab(tabId);
-        }
-      });
-
-      switchTab(tabId);
-      navigateToUrl(url);
-    }
-
-    function switchTab(tabId) {
-      activeTabId = tabId;
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('iframe').forEach(f => f.classList.remove('active'));
-      const tab = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
-      const iframe = document.querySelector(`iframe[data-tab-id="${tabId}"]`);
-      if (tab) tab.classList.add('active');
-      if (iframe) iframe.classList.add('active');
-      updateUI();
-    }
-
-    function navigateToUrl(url) {
-      if (!activeTabId) return;
-      const iframe = document.querySelector(`iframe[data-tab-id="${activeTabId}"]`);
-      if (!iframe) return;
-
-      const encoded = encodeUrl(url);
-      if (!encoded) return;
-
-      const tabHistory = tabHistories.get(activeTabId);
-      if (tabHistory) {
-        tabHistory.history = tabHistory.history.slice(0, tabHistory.index + 1);
-        tabHistory.history.push(url);
-        tabHistory.index++;
-      }
-
-      iframe.src = encoded;
-      addressBar.value = url;
-      showLoading(true);
-      statusText.textContent = `Loading ${url}...`;
-
-      iframe.onload = () => handleLoadSuccess(url);
-      iframe.onerror = () => handleLoadError();
-    }
-
-    function handleLoadSuccess(url) {
-      showLoading(false);
-      errorPage.classList.remove('active');
-      const tab = document.querySelector(`.tab[data-tab-id="${activeTabId}"] span:first-child`);
-      if (tab) tab.textContent = url;
-      statusText.textContent = `Loaded ${url}`;
-      securityIndicator.textContent = url.startsWith('https') ? '🔒 Secure' : '⚠️ Not Secure';
-      updateUI();
-    }
-
-    function handleLoadError() {
-      showLoading(false);
-      errorPage.classList.add('active');
-      statusText.textContent = "Failed to load page";
-      securityIndicator.textContent = '⚠️ Error';
-    }
-
-    function retryCurrentPage() {
-      if (!activeTabId) return;
-      const tabHistory = tabHistories.get(activeTabId);
-      if (tabHistory && tabHistory.index >= 0) {
-        navigateToUrl(tabHistory.history[tabHistory.index]);
-      }
-    }
-
-    function goBack() {
-      if (!activeTabId) return;
-      const tabHistory = tabHistories.get(activeTabId);
-      if (tabHistory && tabHistory.index > 0) {
-        tabHistory.index--;
-        navigateToUrl(tabHistory.history[tabHistory.index]);
-      }
-    }
-
-    function goForward() {
-      if (!activeTabId) return;
-      const tabHistory = tabHistories.get(activeTabId);
-      if (tabHistory && tabHistory.index < tabHistory.history.length - 1) {
-        tabHistory.index++;
-        navigateToUrl(tabHistory.history[tabHistory.index]);
-      }
-    }
-
-    function refreshPage() {
-      if (!activeTabId) return;
-      const tabHistory = tabHistories.get(activeTabId);
-      if (tabHistory && tabHistory.index >= 0) {
-        navigateToUrl(tabHistory.history[tabHistory.index]);
-      }
-    }
-
-    function closeTab(tabId) {
-      const tab = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
-      const iframe = document.querySelector(`iframe[data-tab-id="${tabId}"]`);
-      if (tab) tab.remove();
-      if (iframe) iframe.remove();
-      tabs = tabs.filter(t => t !== tabId);
-      tabHistories.delete(tabId);
-      if (activeTabId === tabId) {
-        if (tabs.length > 0) {
-          switchTab(tabs[tabs.length - 1]);
-        } else {
-          activeTabId = null;
-        }
-      }
-      updateUI();
-    }
-
-    function showLoading(show) {
-      loadingIndicator.classList.toggle('active', show);
-    }
-
-    function updateUI() {
-      const tabHistory = tabHistories.get(activeTabId);
-      backBtn.disabled = !tabHistory || tabHistory.index <= 0;
-      forwardBtn.disabled = !tabHistory || tabHistory.index >= tabHistory.history.length - 1;
-      tabCount.textContent = `${tabs.length} tab${tabs.length !== 1 ? 's' : ''}`;
-    }
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
-    } else {
-      init();
-    }
+    // Start
+    initializeApp().catch(err => {
+      console.error('Initialization failed', err);
+      statusText.textContent = 'Init error — open console';
+    });
   </script>
 </body>
 </html>
